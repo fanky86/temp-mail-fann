@@ -1,16 +1,20 @@
 // pages/api/check-inbox/[token].js
 export default async function handler(req, res) {
   const { token } = req.query;
-  const email = Buffer.from(token, 'base64').toString('utf-8');
 
-  // Simulasi inbox: kamu bisa pakai layanan email API beneran
-  const fakeInbox = [
-    {
-      subject: `${Math.floor(Math.random() * 9999)} adalah kode konfirmasi`,
-      from: 'noreply@web.com',
-      to: email
-    }
-  ];
+  if (!token) {
+    return res.status(400).json({ error: 'Token tidak ditemukan' });
+  }
 
-  res.status(200).json({ emails: fakeInbox });
+  try {
+    const email = Buffer.from(token, 'base64').toString('utf-8');
+
+    // Ambil inbox asli dari email.vwh.sh
+    const response = await fetch(`https://email.vwh.sh/api/email/${email}`);
+    const data = await response.json();
+
+    res.status(200).json({ emails: data });
+  } catch (error) {
+    res.status(500).json({ error: 'Gagal mengambil inbox', detail: error.message });
+  }
 }
