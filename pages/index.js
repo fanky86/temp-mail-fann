@@ -33,6 +33,21 @@ export default function Home() {
     }
   }
 
+  // Fungsi untuk buat email baru dan reset state + localStorage
+  const handleNewEmail = () => {
+    localStorage.removeItem('email')
+    localStorage.removeItem('token')
+    setEmail('')
+    setToken('')
+    setInbox([])
+    createMail().then(() => {
+      const newToken = localStorage.getItem('token')
+      if (newToken) {
+        checkInbox(newToken)
+      }
+    })
+  }
+
   useEffect(() => {
     const savedToken = localStorage.getItem('token')
     const savedEmail = localStorage.getItem('email')
@@ -52,122 +67,67 @@ export default function Home() {
   }, [])
 
   return (
-    <div style={styles.container}>
-      <header style={styles.header}>
-        <h1 style={styles.title}>Fanky Temp Mail</h1>
-      </header>
+    <div style={{
+      maxWidth: 600,
+      margin: '40px auto',
+      padding: 20,
+      backgroundColor: '#1e293b',  // biru gelap
+      borderRadius: 12,
+      boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+      color: '#f1f5f9',
+      fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+    }}>
+      <h1 style={{ textAlign: 'center', marginBottom: 30, color: '#60a5fa' }}>Fanky Temp Mail Panel</h1>
 
-      <section style={styles.infoBox}>
-        <div style={styles.infoItem}>
-          <span style={styles.label}>Email Kamu:</span>
-          <span style={styles.value}>{email || '-'}</span>
-        </div>
-        <div style={styles.infoItem}>
-          <span style={styles.label}>Token Kamu:</span>
-          <span style={styles.value}>{token || '-'}</span>
-        </div>
-      </section>
+      <button
+        onClick={handleNewEmail}
+        style={{
+          display: 'block',
+          marginBottom: 20,
+          padding: '10px 20px',
+          backgroundColor: '#2563eb',
+          border: 'none',
+          borderRadius: 6,
+          color: '#fff',
+          fontWeight: 'bold',
+          cursor: 'pointer',
+          transition: 'background-color 0.3s ease'
+        }}
+        onMouseOver={e => e.currentTarget.style.backgroundColor = '#1e40af'}
+        onMouseOut={e => e.currentTarget.style.backgroundColor = '#2563eb'}
+      >
+        Buat Email Baru
+      </button>
 
-      <section style={styles.inboxSection}>
-        <h2 style={styles.inboxTitle}>Kotak Masuk</h2>
+      <p><strong>Email Kamu:</strong> <span style={{ color: '#93c5fd' }}>{email || '-'}</span></p>
+      <p><strong>Token Kamu:</strong> <span style={{ color: '#93c5fd', wordBreak: 'break-all' }}>{token || '-'}</span></p>
+
+      <h3 style={{ marginTop: 30, borderBottom: '1px solid #334155', paddingBottom: 10, color: '#bfdbfe' }}>Kotak Masuk</h3>
+      <ul style={{ listStyle: 'none', padding: 0 }}>
         {inbox.length === 0 ? (
-          <p style={styles.noMail}>Tidak ada email masuk</p>
+          <li style={{ padding: 10, backgroundColor: '#334155', borderRadius: 6, color: '#94a3b8' }}>Tidak ada email masuk</li>
         ) : (
-          <ul style={styles.mailList}>
-            {inbox.map((mail, i) => (
-              <li key={i} style={styles.mailItem}>
-                <strong>{mail.subject || '(No Subject)'}</strong>
-                <p style={styles.mailPreview}>{mail.preview || ''}</p>
-                <small style={styles.mailDate}>{mail.date || ''}</small>
-              </li>
-            ))}
-          </ul>
+          inbox.map((mail, i) => (
+            <li
+              key={i}
+              style={{
+                backgroundColor: '#2563eb',
+                padding: '10px 15px',
+                borderRadius: 8,
+                marginBottom: 12,
+                boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+                cursor: 'pointer',
+                transition: 'background-color 0.3s ease'
+              }}
+              onMouseOver={e => e.currentTarget.style.backgroundColor = '#1e40af'}
+              onMouseOut={e => e.currentTarget.style.backgroundColor = '#2563eb'}
+              title={mail.body || 'Tidak ada isi email'}
+            >
+              <strong>{mail.subject || '(No Subject)'}</strong>
+            </li>
+          ))
         )}
-      </section>
+      </ul>
     </div>
   )
-}
-
-const styles = {
-  container: {
-    maxWidth: 700,
-    margin: '20px auto',
-    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-    backgroundColor: '#f4f7fa',
-    borderRadius: 10,
-    boxShadow: '0 8px 20px rgba(0,0,0,0.1)',
-    padding: 20,
-  },
-  header: {
-    borderBottom: '2px solid #4f46e5',
-    marginBottom: 20,
-  },
-  title: {
-    margin: 0,
-    color: '#4f46e5',
-    fontWeight: '700',
-    fontSize: 28,
-  },
-  infoBox: {
-    backgroundColor: '#fff',
-    padding: 15,
-    borderRadius: 8,
-    boxShadow: 'inset 0 0 8px rgba(79, 70, 229, 0.15)',
-    marginBottom: 25,
-    display: 'flex',
-    justifyContent: 'space-between',
-    flexWrap: 'wrap',
-  },
-  infoItem: {
-    minWidth: '48%',
-    marginBottom: 10,
-  },
-  label: {
-    color: '#6b7280',
-    fontWeight: '600',
-    marginRight: 8,
-    fontSize: 14,
-  },
-  value: {
-    color: '#1f2937',
-    fontWeight: '700',
-    fontSize: 16,
-    wordBreak: 'break-all',
-  },
-  inboxSection: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 15,
-    boxShadow: '0 4px 10px rgba(79, 70, 229, 0.1)',
-  },
-  inboxTitle: {
-    margin: '0 0 15px 0',
-    color: '#4f46e5',
-    fontWeight: '700',
-    fontSize: 22,
-    borderBottom: '1px solid #e0e7ff',
-    paddingBottom: 6,
-  },
-  noMail: {
-    color: '#9ca3af',
-    fontStyle: 'italic',
-  },
-  mailList: {
-    listStyle: 'none',
-    margin: 0,
-    padding: 0,
-  },
-  mailItem: {
-    padding: 15,
-    borderBottom: '1px solid #e0e7ff',
-  },
-  mailPreview: {
-    margin: '6px 0',
-    color: '#374151',
-    fontSize: 14,
-  },
-  mailDate: {
-    fontSize: 12,
-    color: '#9ca3af',
-  },
 }
