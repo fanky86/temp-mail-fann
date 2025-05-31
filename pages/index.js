@@ -54,7 +54,7 @@ export default function Home() {
   return (
     <div style={styles.container}>
       <header style={styles.header}>
-        <h1 style={styles.title}>Fanky Temp Mail Panel</h1>
+        <h1 style={styles.title}>Fanky Temp Mail</h1>
       </header>
 
       <section style={styles.infoBox}>
