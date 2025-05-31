@@ -1,7 +1,9 @@
 // pages/api/create-mail.js
 export default async function handler(req, res) {
-  const random = Math.random().toString(36).substring(2, 10);
-  const email = `${random}@email.vwh.sh`; // pakai domain VWH
-  const token = Buffer.from(email).toString('base64');
-  res.status(200).json({ email, token });
+  const randomString = Math.random().toString(36).substring(2, 10)
+  const email = `${randomString}@1secmail.com`
+  res.status(200).json({
+    email,
+    token: email // token = email, karena 1secmail pakai email penuh
+  })
 }
