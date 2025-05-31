@@ -6,18 +6,31 @@ export default function Home() {
   const [inbox, setInbox] = useState([])
 
   const createMail = async () => {
-    const res = await fetch('/api/create-mail')
-    const data = await res.json()
-    setEmail(data.email)
-    setToken(data.token)
-    localStorage.setItem('email', data.email)
-    localStorage.setItem('token', data.token)
+    try {
+      const res = await fetch('/api/create-mail')
+      const data = await res.json()
+      setEmail(data.email)
+      setToken(data.token)
+      localStorage.setItem('email', data.email)
+      localStorage.setItem('token', data.token)
+    } catch (error) {
+      console.error('Gagal membuat email:', error)
+    }
   }
 
   const checkInbox = async (usedToken) => {
-    const res = await fetch(`/api/check-inbox/${usedToken}`)
-    const data = await res.json()
-    setInbox(data.emails)
+    try {
+      const res = await fetch(`/api/check-inbox/${usedToken}`)
+      const data = await res.json()
+      if (Array.isArray(data.emails)) {
+        setInbox(data.emails)
+      } else {
+        setInbox([])
+      }
+    } catch (error) {
+      console.error('Gagal cek inbox:', error)
+      setInbox([])
+    }
   }
 
   useEffect(() => {
@@ -44,9 +57,13 @@ export default function Home() {
       <p>Email Kamu: <strong>{email}</strong></p>
       <p>Token Kamu: <strong>{token}</strong></p>
       <ul>
-        {inbox.map((mail, i) => (
-          <li key={i}><strong>{mail.subject}</strong></li>
-        ))}
+        {inbox.length === 0 ? (
+          <li>Tidak ada email masuk</li>
+        ) : (
+          inbox.map((mail, i) => (
+            <li key={i}><strong>{mail.subject}</strong></li>
+          ))
+        )}
       </ul>
     </div>
   )
