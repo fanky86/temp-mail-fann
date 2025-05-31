@@ -4,6 +4,7 @@ export default function Home() {
   const [email, setEmail] = useState('')
   const [token, setToken] = useState('')
   const [inbox, setInbox] = useState([])
+  const [errorMsg, setErrorMsg] = useState('') // Untuk pesan error inbox
 
   const createMail = async () => {
     try {
@@ -13,8 +14,10 @@ export default function Home() {
       setToken(data.token)
       localStorage.setItem('email', data.email)
       localStorage.setItem('token', data.token)
+      setErrorMsg('') // Reset error saat sukses
     } catch (error) {
       console.error('Gagal membuat email:', error)
+      setErrorMsg('Gagal buat email, coba lagi.')
     }
   }
 
@@ -24,22 +27,25 @@ export default function Home() {
       const data = await res.json()
       if (Array.isArray(data.emails)) {
         setInbox(data.emails)
+        setErrorMsg(data.emails.length === 0 ? 'Belum ada email masuk, mungkin pengirim belum mengirim.' : '')
       } else {
         setInbox([])
+        setErrorMsg('Token tidak valid atau email belum aktif.')
       }
     } catch (error) {
       console.error('Gagal cek inbox:', error)
       setInbox([])
+      setErrorMsg('Gagal mengambil inbox. Periksa koneksi atau token.')
     }
   }
 
-  // Fungsi untuk buat email baru dan reset state + localStorage
   const handleNewEmail = () => {
     localStorage.removeItem('email')
     localStorage.removeItem('token')
     setEmail('')
     setToken('')
     setInbox([])
+    setErrorMsg('')
     createMail().then(() => {
       const newToken = localStorage.getItem('token')
       if (newToken) {
@@ -71,13 +77,13 @@ export default function Home() {
       maxWidth: 600,
       margin: '40px auto',
       padding: 20,
-      backgroundColor: '#1e293b',  // biru gelap
+      backgroundColor: '#1e293b',
       borderRadius: 12,
       boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
       color: '#f1f5f9',
       fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
     }}>
-      <h1 style={{ textAlign: 'center', marginBottom: 30, color: '#60a5fa' }}>Fanky Temp Mail Panel</h1>
+      <h1 style={{ textAlign: 'center', marginBottom: 30, color: '#60a5fa' }}>Fanky Temp Mail</h1>
 
       <button
         onClick={handleNewEmail}
@@ -128,6 +134,21 @@ export default function Home() {
           ))
         )}
       </ul>
+
+      {/* Tampilkan pesan error singkat jika ada */}
+      {errorMsg && (
+        <div style={{
+          marginTop: 15,
+          padding: 10,
+          backgroundColor: '#dc2626',
+          borderRadius: 6,
+          color: '#fff',
+          textAlign: 'center',
+          fontSize: '0.9rem'
+        }}>
+          {errorMsg}
+        </div>
+      )}
     </div>
   )
 }
