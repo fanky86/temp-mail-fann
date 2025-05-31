@@ -4,7 +4,7 @@ export default function Home() {
   const [email, setEmail] = useState('')
   const [token, setToken] = useState('')
   const [inbox, setInbox] = useState([])
-  const [errorMsg, setErrorMsg] = useState('') // Untuk pesan error inbox
+  const [errorMsg, setErrorMsg] = useState('')
 
   const createMail = async () => {
     try {
@@ -14,7 +14,7 @@ export default function Home() {
       setToken(data.token)
       localStorage.setItem('email', data.email)
       localStorage.setItem('token', data.token)
-      setErrorMsg('') // Reset error saat sukses
+      setErrorMsg('')
     } catch (error) {
       console.error('Gagal membuat email:', error)
       setErrorMsg('Gagal buat email, coba lagi.')
@@ -105,6 +105,27 @@ export default function Home() {
         Buat Email Baru
       </button>
 
+      <button
+        onClick={() => checkInbox(token)}
+        style={{
+          display: 'block',
+          marginBottom: 20,
+          padding: '10px 20px',
+          backgroundColor: '#14b8a6',
+          border: 'none',
+          borderRadius: 6,
+          color: '#fff',
+          fontWeight: 'bold',
+          cursor: 'pointer',
+          transition: 'background-color 0.3s ease'
+        }}
+        onMouseOver={e => e.currentTarget.style.backgroundColor = '#0f766e'}
+        onMouseOut={e => e.currentTarget.style.backgroundColor = '#14b8a6'}
+        disabled={!token}
+      >
+        Checkpoint Inbox Manual
+      </button>
+
       <p><strong>Email Kamu:</strong> <span style={{ color: '#93c5fd' }}>{email || '-'}</span></p>
       <p><strong>Token Kamu:</strong> <span style={{ color: '#93c5fd', wordBreak: 'break-all' }}>{token || '-'}</span></p>
 
@@ -135,7 +156,6 @@ export default function Home() {
         )}
       </ul>
 
-      {/* Tampilkan pesan error singkat jika ada */}
       {errorMsg && (
         <div style={{
           marginTop: 15,
