@@ -1,0 +1,33 @@
+{
+  "name": "temp-email-fann",
+  "version": "1.0.0",
+  "description": "Temporary email generator with VWH domain",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fanky86/temp-email-fann.git"
+  },
+  "keywords": [
+    "nextjs",
+    "temp-mail",
+    "vwh",
+    "email"
+  ],
+  "author": "Fanky",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fanky86/temp-email-fann/issues"
+  },
+  "homepage": "https://github.com/fanky86/temp-email-fann#readme",
+  "dependencies": {
+    "next": "^15.3.3",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  }
+}
