@@ -1,38 +1,50 @@
 export default async function handler(req, res) {
-  const token = req.query.token;
-  if (!token || !token.includes('@')) {
-    return res.status(400).json({ error: 'Token invalid' });
-  }
-
-  const [login, domain] = token.split('@');
-
   try {
-    const inboxRes = await fetch(`https://www.1secmail.com/api/v1/?action=getMessages&login=${login}&domain=${domain}`);
+    // 1. Buat email acak via temp-mail API (tanpa domain kustom)
+    const createRes = await fetch('https://api.temp-mail.io/api/v3/email/new', {
+      method: 'GET',
+      headers: {
+        accept: 'application/json'
+      }
+    });
+
+    if (!createRes.ok) {
+      return res.status(500).json({ error: 'Gagal membuat email baru' });
+    }
+
+    const emailData = await createRes.json();
+    const token = emailData.token;
+    const email = emailData.email;
+
+    // 2. Ambil inbox dengan token (autentikasi Bearer)
+    const inboxRes = await fetch('https://api.temp-mail.io/api/v3/email', {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        accept: 'application/json'
+      }
+    });
 
     if (!inboxRes.ok) {
-      return res.status(500).json({ error: 'Gagal mengambil inbox: 1secmail API error' });
+      return res.status(500).json({ error: 'Gagal mengambil inbox dari temp.mail' });
     }
 
     const inboxData = await inboxRes.json();
 
-    const emails = await Promise.all(inboxData.map(async (item) => {
-      const detailRes = await fetch(`https://www.1secmail.com/api/v1/?action=readMessage&login=${login}&domain=${domain}&id=${item.id}`);
-
-      if (!detailRes.ok) {
-        return null; // Skip jika gagal ambil detail email
-      }
-
-      const detailData = await detailRes.json();
-
-      return {
-        subject: detailData.subject,
-        body: detailData.body,
-        from: detailData.from
-      };
+    // 3. Format data email
+    const emails = inboxData.map((item) => ({
+      from: item.from,
+      subject: item.subject,
+      body: item.text_body || item.html_body || 'Tidak ada isi email'
     }));
 
-    res.status(200).json({ emails: emails.filter(Boolean) });
-  } catch (error) {
-    res.status(500).json({ error: 'Gagal mengambil inbox', details: error.toString() });
+    res.status(200).json({
+      email,
+      token,
+      inbox: emails
+    });
+
+  } catch (err) {
+    res.status(500).json({ error: 'Terjadi kesalahan', details: err.toString() });
   }
 }
